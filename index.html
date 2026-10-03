@@ -1,13 +1,179 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./output.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Simon Says - watch the pattern of lights, then repeat it back in the same order. A calm memory activity.">
+  <meta name="theme-color" content="#fffaf3">
+  <title>Simon Says - Pixel Players</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233f2819'/%3E%3Crect x='4' y='4' width='11' height='11' rx='3' fill='%2334d399'/%3E%3Crect x='17' y='4' width='11' height='11' rx='3' fill='%23fbbf24'/%3E%3Crect x='4' y='17' width='11' height='11' rx='3' fill='%2360a5fa'/%3E%3Crect x='17' y='17' width='11' height='11' rx='3' fill='%23fb7185'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="./src/output.css" rel="stylesheet">
 </head>
-<body>
-  <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+<body class="min-h-dvh bg-linear-to-b from-cream via-cream to-teal-50 font-body text-warm-900 antialiased">
+
+  <div class="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-5 sm:py-6">
+
+    <header class="pixel-panel">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="brand-row flex min-w-0 flex-1 items-center gap-2.5">
+          <span class="grid h-10 w-10 shrink-0 grid-cols-2 grid-rows-2 gap-0.5 rounded-xl bg-warm-900 p-1 shadow-sm sm:h-12 sm:w-12" aria-hidden="true">
+            <span class="rounded-[3px] bg-emerald-400"></span>
+            <span class="rounded-[3px] bg-amber-400"></span>
+            <span class="rounded-[3px] bg-sky-400"></span>
+            <span class="rounded-[3px] bg-rose-400"></span>
+          </span>
+          <div class="min-w-0">
+            <h1 class="font-pixel text-[11px] leading-relaxed tracking-wide text-teal-800 sm:text-sm">SIMON SAYS</h1>
+            <p class="mt-1 hidden text-xs font-bold text-warm-500 sm:block">Watch &middot; Remember &middot; Repeat</p>
+          </div>
+        </div>
+
+        <div class="btn-row flex shrink-0 items-center gap-2">
+          <p id="stateBadge" class="flex shrink-0 items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-bold text-teal-900 ring-2 ring-teal-200 sm:text-xs">
+            <span id="stateBadgeIcon" aria-hidden="true">&#9679;</span>
+            <span id="stateBadgeText">READY</span>
+          </p>
+          <button type="button" id="btnMute" class="game-btn" aria-pressed="false" aria-label="Mute sound">
+            <span id="btnMuteIcon" aria-hidden="true">&#128266;</span><span class="hidden sm:inline" id="btnMuteText">Sound</span>
+          </button>
+        </div>
+      </div>
+
+      <dl class="stat-row mt-3 grid grid-cols-3 gap-2">
+        <div class="stat-chip">
+          <dt>Round</dt>
+          <dd id="statRound">1</dd>
+        </div>
+        <div class="stat-chip">
+          <dt>Pattern</dt>
+          <dd id="statLength">0</dd>
+        </div>
+        <div class="stat-chip">
+          <dt>Best Round</dt>
+          <dd id="statBest">0</dd>
+        </div>
+      </dl>
+    </header>
+
+    <main class="stage-wrap flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
+      <p id="status" class="status-pill">
+        <span id="statusIcon" class="status-icon" aria-hidden="true">&#128064;</span>
+        <span id="statusText">Press Start Game to begin.</span>
+      </p>
+
+      <div id="board" class="board" role="group" aria-label="Four Simon lights">
+        <button type="button" class="light-btn light-0" data-index="0" aria-label="Light 1 of 4, Up">
+          <span class="light-glyph" aria-hidden="true">&#9650;</span>
+          <span class="light-name">UP</span>
+          <span class="light-key" aria-hidden="true">&#8593; / 1</span>
+        </button>
+        <button type="button" class="light-btn light-1" data-index="1" aria-label="Light 2 of 4, Right">
+          <span class="light-glyph" aria-hidden="true">&#9654;</span>
+          <span class="light-name">RIGHT</span>
+          <span class="light-key" aria-hidden="true">&#8594; / 2</span>
+        </button>
+        <button type="button" class="light-btn light-2" data-index="2" aria-label="Light 3 of 4, Left">
+          <span class="light-glyph" aria-hidden="true">&#9664;</span>
+          <span class="light-name">LEFT</span>
+          <span class="light-key" aria-hidden="true">&#8592; / 3</span>
+        </button>
+        <button type="button" class="light-btn light-3" data-index="3" aria-label="Light 4 of 4, Down">
+          <span class="light-glyph" aria-hidden="true">&#9660;</span>
+          <span class="light-name">DOWN</span>
+          <span class="light-key" aria-hidden="true">&#8595; / 4</span>
+        </button>
+      </div>
+
+      <p id="progress" class="text-center text-sm font-bold text-warm-500 sm:text-base">
+        Progress: <span id="progressValue" class="tabular-nums text-teal-700">0 / 0</span>
+      </p>
+    </main>
+
+    <footer class="shrink-0">
+      <ul class="grid gap-2 sm:grid-cols-2">
+        <li class="control-row">
+          <span class="control-key bg-emerald-200 text-emerald-900">&#8593;</span>
+          <span class="text-sm font-semibold text-warm-700">Up &mdash; or press <b>1</b></span>
+        </li>
+        <li class="control-row">
+          <span class="control-key bg-amber-200 text-amber-900">&#8594;</span>
+          <span class="text-sm font-semibold text-warm-700">Right &mdash; or press <b>2</b></span>
+        </li>
+        <li class="control-row">
+          <span class="control-key bg-sky-200 text-sky-900">&#8592;</span>
+          <span class="text-sm font-semibold text-warm-700">Left &mdash; or press <b>3</b></span>
+        </li>
+        <li class="control-row">
+          <span class="control-key bg-rose-200 text-rose-900">&#8595;</span>
+          <span class="text-sm font-semibold text-warm-700">Down &mdash; or press <b>4</b></span>
+        </li>
+      </ul>
+    </footer>
+  </div>
+
+  <div id="overlayStart" class="game-overlay" role="dialog" aria-labelledby="startTitle" aria-modal="true">
+    <div class="game-card">
+      <div class="mx-auto mb-3 grid h-14 w-14 grid-cols-2 grid-rows-2 gap-1 rounded-2xl bg-warm-900 p-1.5 shadow-sm" aria-hidden="true">
+        <span class="rounded-md bg-emerald-400"></span>
+        <span class="rounded-md bg-amber-400"></span>
+        <span class="rounded-md bg-sky-400"></span>
+        <span class="rounded-md bg-rose-400"></span>
+      </div>
+      <h2 id="startTitle" class="font-pixel text-base leading-relaxed text-teal-800 sm:text-2xl">SIMON SAYS</h2>
+      <p class="mt-3 text-base font-bold text-warm-700 sm:text-lg">Watch the pattern of lights, then repeat it back in the same order.</p>
+
+      <ol class="mx-auto mt-5 grid max-w-sm gap-2 text-left">
+        <li class="step-row">
+          <span class="step-num">1</span>
+          <span class="text-sm font-semibold text-warm-700">The lights flash one after another. Watch carefully.</span>
+        </li>
+        <li class="step-row">
+          <span class="step-num">2</span>
+          <span class="text-sm font-semibold text-warm-700">When it says <b>&ldquo;Your turn&rdquo;</b>, press the lights in the same order.</span>
+        </li>
+        <li class="step-row">
+          <span class="step-num">3</span>
+          <span class="text-sm font-semibold text-warm-700">Every round you clear adds just one more light.</span>
+        </li>
+      </ol>
+
+      <p class="mt-4 rounded-2xl bg-warm-100 px-3 py-2 text-xs font-bold text-warm-600">
+        Keyboard: arrow keys or the number keys <b>1&ndash;4</b>. There is no time limit.
+      </p>
+
+      <button type="button" id="btnStart" class="primary-btn mt-5">START GAME</button>
+      <p class="mt-3 text-sm font-bold text-warm-500">Best round: <span id="startBest" class="tabular-nums text-teal-700">0</span></p>
+    </div>
+  </div>
+
+  <div id="overlayOver" class="game-overlay" role="dialog" aria-labelledby="overTitle" aria-modal="true" hidden>
+    <div class="game-card">
+      <p class="mb-1 text-5xl" aria-hidden="true">&#127775;</p>
+      <h2 id="overTitle" class="font-pixel text-base leading-relaxed text-teal-800 sm:text-2xl">GAME OVER</h2>
+      <p id="newBestBadge" class="mt-2 inline-block rounded-full bg-amber-300 px-4 py-1 text-sm font-black text-amber-950 ring-2 ring-amber-500" hidden>&#9733; NEW BEST!</p>
+
+      <p id="overMessage" class="mt-3 text-base font-bold text-warm-700 sm:text-lg">Nice try! Let&rsquo;s see how far you can go.</p>
+
+      <dl class="mx-auto mt-4 grid max-w-xs grid-cols-2 gap-3">
+        <div class="result-chip">
+          <dt>You Reached</dt>
+          <dd><span id="overReached">1</span></dd>
+        </div>
+        <div class="result-chip">
+          <dt>Best Round</dt>
+          <dd><span id="overBest">0</span></dd>
+        </div>
+      </dl>
+
+      <button type="button" id="btnPlayAgain" class="primary-btn mt-5">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <p id="announcer" class="sr-only" role="status" aria-live="polite"></p>
+
+  <script src="./script.js"></script>
 </body>
 </html>

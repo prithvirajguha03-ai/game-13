@@ -1,1 +1,311 @@
 @import "tailwindcss";
+@source "../index.html";
+@source "../script.js";
+
+@theme {
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+  --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  --color-cream: #fffaf3;
+  --color-warm-50: #fffaf3;
+  --color-warm-100: #fdf3e3;
+  --color-warm-200: #f6dfc1;
+  --color-warm-300: #efcda3;
+  --color-warm-400: #e6b585;
+  --color-warm-500: #c08457;
+  --color-warm-600: #a06a44;
+  --color-warm-700: #7d5235;
+  --color-warm-800: #5f3d28;
+  --color-warm-900: #3f2819;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(.88); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes light-wrong {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@layer components {
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  /* ---------- shared chrome ---------- */
+
+  .pixel-panel {
+    @apply rounded-3xl border-2 border-warm-200 bg-white/80 p-3 backdrop-blur-sm sm:p-4;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 4px 0 var(--color-warm-300),
+      0 12px 24px rgba(63, 40, 25, 0.08);
+  }
+
+  .game-btn {
+    @apply flex shrink-0 items-center gap-1.5 rounded-xl border-2 border-teal-200 bg-white/85 px-2.5 py-1.5 text-sm font-bold text-teal-900 transition hover:bg-white active:scale-95;
+    box-shadow: 0 2px 6px rgba(19, 78, 74, 0.1);
+  }
+  .game-btn:focus-visible {
+    @apply outline-none ring-4 ring-teal-400;
+  }
+
+  .stat-chip {
+    @apply flex flex-col items-center rounded-2xl border-2 border-warm-200 bg-white px-2 py-1.5 text-center;
+    box-shadow: 0 2px 0 var(--color-warm-200);
+  }
+  .stat-chip dt {
+    @apply text-[10px] font-bold uppercase tracking-wider text-warm-500 sm:text-xs;
+  }
+  .stat-chip dd {
+    @apply text-xl leading-tight font-black text-teal-800 tabular-nums sm:text-2xl;
+  }
+
+  /* ---------- stage + status ---------- */
+
+  .stage-wrap {
+    @apply w-full;
+  }
+
+  .status-pill {
+    @apply flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-teal-200 bg-teal-50 px-4 py-2 text-center text-sm font-extrabold text-teal-800 sm:text-base;
+  }
+  .status-pill .status-icon {
+    @apply text-lg leading-none;
+  }
+  .status-pill[data-tone="watch"] {
+    @apply border-sky-200 bg-sky-50 text-sky-800;
+  }
+  .status-pill[data-tone="turn"] {
+    @apply border-emerald-300 bg-emerald-50 text-emerald-800;
+  }
+  .status-pill[data-tone="good"] {
+    @apply border-amber-300 bg-amber-50 text-amber-800;
+  }
+  .status-pill[data-tone="over"] {
+    @apply border-rose-300 bg-rose-50 text-rose-700;
+  }
+
+  /* ---------- the board + lights ---------- */
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    width: min(86vw, 52dvh, 30rem);
+    max-width: 100%;
+  }
+  @media (min-width: 640px) {
+    .board {
+      gap: 1rem;
+    }
+  }
+
+  .light-btn {
+    position: relative;
+    display: flex;
+    aspect-ratio: 1 / 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 1.75rem;
+    border: 4px solid var(--light-border);
+    background: var(--light-bg);
+    color: var(--light-ink);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 0.12s ease,
+      background-color 0.12s ease,
+      border-color 0.12s ease,
+      color 0.12s ease,
+      box-shadow 0.12s ease;
+    box-shadow:
+      inset 0 5px 0 rgba(255, 255, 255, 0.6),
+      0 7px 0 var(--light-shadow),
+      0 14px 24px rgba(63, 40, 25, 0.14);
+  }
+  .light-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 0 5px 0 rgba(255, 255, 255, 0.6),
+      0 7px 0 var(--light-shadow),
+      0 0 0 5px var(--light-halo),
+      0 14px 24px rgba(63, 40, 25, 0.14);
+  }
+  .light-btn.is-lit {
+    background: var(--light-vivid);
+    border-color: var(--light-vivid-border);
+    color: #fff;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow:
+      inset 0 5px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 8px var(--light-halo),
+      0 8px 0 var(--light-shadow),
+      0 0 38px var(--light-glow);
+  }
+  .light-btn.is-press {
+    background: var(--light-vivid);
+    border-color: var(--light-vivid-border);
+    color: #fff;
+    transform: translateY(3px) scale(0.97);
+    box-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.35),
+      0 2px 0 var(--light-shadow),
+      0 0 22px var(--light-glow);
+  }
+  .light-btn.is-wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+    animation: light-wrong 0.5s ease-in-out 2;
+  }
+
+  .light-glyph {
+    font-size: clamp(2.25rem, 13vw, 4rem);
+    line-height: 1;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.12));
+  }
+  .light-name {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.5rem, 2.4vw, 0.72rem);
+    letter-spacing: 0.08em;
+  }
+  .light-key {
+    position: absolute;
+    right: 0.7rem;
+    bottom: 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.7;
+  }
+
+  .light-0 {
+    --light-bg: #e8f8ef;
+    --light-border: #6ee7b7;
+    --light-ink: #065f46;
+    --light-vivid: #34d399;
+    --light-vivid-border: #059669;
+    --light-shadow: #047857;
+    --light-halo: rgba(52, 211, 153, 0.35);
+    --light-glow: rgba(52, 211, 153, 0.65);
+  }
+  .light-1 {
+    --light-bg: #fdf3d7;
+    --light-border: #fcd34d;
+    --light-ink: #92400e;
+    --light-vivid: #fbbf24;
+    --light-vivid-border: #d97706;
+    --light-shadow: #b45309;
+    --light-halo: rgba(251, 191, 36, 0.35);
+    --light-glow: rgba(251, 191, 36, 0.7);
+  }
+  .light-2 {
+    --light-bg: #e6f2fe;
+    --light-border: #93c5fd;
+    --light-ink: #1e40af;
+    --light-vivid: #60a5fa;
+    --light-vivid-border: #2563eb;
+    --light-shadow: #1d4ed8;
+    --light-halo: rgba(96, 165, 250, 0.35);
+    --light-glow: rgba(96, 165, 250, 0.65);
+  }
+  .light-3 {
+    --light-bg: #fdeaf0;
+    --light-border: #fda4af;
+    --light-ink: #9f1239;
+    --light-vivid: #fb7185;
+    --light-vivid-border: #e11d48;
+    --light-shadow: #be123c;
+    --light-halo: rgba(251, 113, 133, 0.35);
+    --light-glow: rgba(251, 113, 133, 0.65);
+  }
+
+  /* ---------- overlays ---------- */
+
+  .game-overlay {
+    @apply fixed inset-0 z-20 flex items-center justify-center overflow-y-auto bg-warm-900/45 p-4 backdrop-blur-sm;
+  }
+  .game-overlay[hidden] {
+    display: none;
+  }
+  .game-card {
+    @apply w-full max-w-md rounded-3xl border-2 border-warm-200 bg-white px-5 py-6 text-center shadow-2xl sm:px-8 sm:py-8;
+    animation: pop-in 0.28s ease-out both;
+  }
+
+  .primary-btn {
+    @apply block w-full rounded-2xl bg-teal-500 px-6 py-4 text-xl font-black tracking-wide text-white ring-4 ring-teal-600/40 transition hover:bg-teal-400 active:translate-y-[3px];
+    box-shadow: 0 5px 0 #0f766e;
+    touch-action: manipulation;
+  }
+  .primary-btn:focus-visible {
+    @apply outline-none ring-4 ring-teal-700;
+  }
+  .primary-btn:active {
+    box-shadow: 0 2px 0 #0f766e;
+  }
+
+  .step-row {
+    @apply flex items-start gap-3 rounded-2xl bg-teal-50 p-2.5 ring-1 ring-teal-100;
+  }
+  .step-num {
+    @apply grid h-8 w-8 shrink-0 place-items-center rounded-full bg-teal-500 text-sm font-black text-white;
+  }
+
+  .control-row {
+    @apply flex items-center gap-3 rounded-2xl border border-warm-200 bg-white/80 p-2.5;
+  }
+  .control-key {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-xl text-lg font-black;
+  }
+
+  .result-chip {
+    @apply rounded-2xl bg-teal-50 px-3 py-2 ring-2 ring-teal-200;
+  }
+  .result-chip dt {
+    @apply text-[10px] font-bold uppercase tracking-wider text-teal-700;
+  }
+  .result-chip dd {
+    @apply text-3xl font-black text-teal-900 tabular-nums;
+  }
+
+  .badge-new {
+    animation: badge-pulse 1.1s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-btn {
+    transition: none;
+  }
+  .light-btn.is-lit,
+  .light-btn.is-press {
+    transform: none;
+  }
+  .light-btn.is-wrong {
+    animation: none;
+  }
+  .game-card,
+  .badge-new {
+    animation: none;
+  }
+  .primary-btn:active {
+    transform: none;
+  }
+}

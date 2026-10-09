@@ -2,12 +2,12 @@
   'use strict';
 
   const CONFIG = {
-    START_DELAY_MS: 650,
-    LIGHT_ON_MS: 620,
-    GAP_MS: 300,
-    NEXT_ROUND_DELAY_MS: 850,
-    WRONG_FLASH_MS: 650,
-    PRESS_MS: 210,
+    START_DELAY_MS: 400,
+    LIGHT_ON_MS: 400,
+    GAP_MS: 200,
+    NEXT_ROUND_DELAY_MS: 550,
+    WRONG_FLASH_MS: 400,
+    PRESS_MS: 140,
     BEST_KEY: 'simon-says.best-round.v1',
     MUTE_KEY: 'simon-says.muted.v1',
     TONES: [392, 494, 587, 659]
